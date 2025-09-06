@@ -3,3 +3,5 @@ python-dotenv==1.1.1
 sqlalchemy==2.0.41
 minimalmodbus==2.1.1
 PyMySQL==1.1.1
+pytest==8.4.1
+python-decouple==3.8

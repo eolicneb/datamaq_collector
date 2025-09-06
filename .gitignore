@@ -4,3 +4,8 @@ logs/
 src/docs/00-Prompt-for-ProjectAnalysis.md
 docs/todo.md
 todo.txt
+.idea/
+*.pyc
+*.log
+.coverage
+htmlcov/

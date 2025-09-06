@@ -25,7 +25,7 @@ def processor():
     device = MockModbusDevice()
     repo = MockRepository()
     logger = MockLogger()
-    return ModbusProcessor(device, repo, logger), repo
+    return ModbusProcessor(repo, logger, device), repo
 
 def test_process_digital_inputs(processor):
     proc, repo = processor

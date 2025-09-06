@@ -4,18 +4,29 @@ Este módulo se encarga de realizar operaciones de lectura y escritura en la bas
 """
 
 import os
+from dataclasses import asdict
+
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+
+from logger import logger
+from src import settings
 from src.application.interfaces import IDatabaseRepository
-from src.utils.logging.dependency_injection import get_logger
+from src.domain.modbus_register import ModbusRegister
+from src.domain.reading import Reading
+# from src.utils.logging.dependency_injection import get_logger
+
+from . import models
+
 
 # Cargamos las variables de entorno desde el archivo .env
 load_dotenv()
-logger = get_logger()
+# logger = get_logger()
+
 
 class SQLAlchemyDatabaseRepository(IDatabaseRepository):
-    "Implementación de la interfaz IDatabaseRepository utilizando SQLAlchemy."
+    """Implementación de la interfaz IDatabaseRepository utilizando SQLAlchemy."""
 
     def __init__(self):
         # Inicializa el engine y la sesión utilizando la configuración definida
@@ -32,11 +43,11 @@ class SQLAlchemyDatabaseRepository(IDatabaseRepository):
         """
         try:
             return {
-                'host': os.getenv('DB_HOST'),
-                'user': os.getenv('DB_USER'),
-                'password': os.getenv('DB_PASSWORD'),
-                'db': os.getenv('DB_NAME'),
-                'port': os.getenv('DB_PORT', '3306')
+                'host': settings.DB_HOST,
+                'user': settings.DB_USER,
+                'password': settings.DB_PASSWORD,
+                'port': settings.DB_PORT,
+                'db': settings.DB_NAME,
             }
         except Exception as e:
             logger.error(f"Error al obtener la configuración de la base de datos: {e}")
@@ -84,21 +95,27 @@ class SQLAlchemyDatabaseRepository(IDatabaseRepository):
             self.session.rollback()
             raise e
 
-    def actualizar_registro(self, consulta: str, parametros: dict) -> None:
-        """
-        Ejecuta una consulta de actualización (UPDATE) de manera transaccional.
-        """
+    def actualizar_registro(self, register: ModbusRegister) -> None:
+
+        def _build_update_query(address: int, value):
+            """
+            Construye la consulta SQL para actualizar el registro.
+            """
+            query = "UPDATE registros_modbus SET valor = :valor WHERE direccion_modbus = :direccion"
+            params = {'valor': value, 'direccion': address}
+            return query, params
+
         try:
-            self.session.execute(text(consulta), parametros)
-            self.session.commit()
-            logger.info(
-                f"Actualización exitosa con consulta: {consulta} y parámetros: {parametros}"
-            )
+            with self.session.begin():
+                query, params = _build_update_query(register.address, register.value)
+                self.session.execute(text(query), params)
+                logger.info(
+                    f"Actualización exitosa con consulta: {query} y parámetros: {params}"
+                )
         except Exception as e:
-            self.session.rollback()
             logger.error(
-                f"Error actualizando registro con consulta: {consulta} y "
-                f"parámetros: {parametros}. Error: {e}"
+                f"Error actualizando registro con consulta: {query} y "
+                f"parámetros: {params}. Error: {e}"
             )
             raise DatabaseUpdateError(f"Error al actualizar la base de datos: {e}") from e
 
@@ -140,10 +157,22 @@ class SQLAlchemyDatabaseRepository(IDatabaseRepository):
         self.engine.dispose()
         logger.info("Conexión cerrada exitosamente")
 
+    def insert_reading(self, reading: Reading):
+        try:
+            with self.session.begin():
+                new_reading = models.Reading(**asdict(reading))
+                self.session.add(new_reading)
+                logger.info(f"Inserción exitosa de reading: {reading}")
+        except Exception as e:
+            logger.error(
+                f"Error insertando reading: {reading}. Error: {e}"
+            )
+            raise DatabaseUpdateError(f"Error al actualizar la base de datos: {e}") from e
+
+
 class DatabaseUpdateError(Exception):
     """Excepción para errores en la actualización de la base de datos."""
-    pass
+
 
 class DatabaseConnectionError(Exception):
     """Excepción para errores en la conexión a la base de datos."""
-    pass

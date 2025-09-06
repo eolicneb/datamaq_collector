@@ -9,16 +9,31 @@ import time
 import signal
 import platform
 from src.utils.logging.dependency_injection import get_logger
-from src.modbus_processor import process_modbus_operations
 from src.data_transfer_controller import main_transfer_controller
 from src.infrastructure.CLI.app_view import clear_screen
 
+
 class AppController:
     """Controlador principal que gestiona el ciclo de la aplicación."""
-    def __init__(self, logger=None, repository=None):
+    def __init__(self, logger=None, repository=None, modbus_processor=None):
         self.logger = logger or get_logger()
-        self.repository = repository
+        self._repository = repository
+        self._modbus = modbus_processor
         self.running = True
+
+    @property
+    def repository(self):
+        if self._repository is None:
+            from src.infrastructure.factories import create_repository
+            self._repository = create_repository()
+        return self._repository
+
+    @property
+    def modbus(self):
+        if self._modbus is None:
+            from src.infrastructure.factories import create_modbus_processor
+            self._modbus = create_modbus_processor(repository=self.repository, logger=self.logger)
+        return self._modbus
 
     def setup_signal_handlers(self):
         "Configura los manejadores de señales para el sistema operativo actual."
@@ -45,21 +60,17 @@ class AppController:
             "Ejecutando iteración del bucle principal.",
             extra={"event": "main_loop_iteration", "controller": "AppController"}
         )
-        repo = self.repository
-        if repo is None:
-            from src.infrastructure.factories import create_repository
-            repo = create_repository()
         self.logger.info(
             "Procesando operaciones Modbus.",
-            extra={"event": "process_modbus", "repository": type(repo).__name__}
+            extra={"event": "process_modbus", "repository": type(self.modbus.repository).__name__}
         )
-        process_modbus_operations(repository=repo)
+        self.modbus.process()
         print("")  # Se puede remover o delegar a la vista según convenga
         self.logger.info(
             "Ejecutando transferencia de datos.",
             extra={"event": "data_transfer", "controller": "AppController"}
         )
-        main_transfer_controller()
+        main_transfer_controller(self.repository)
         time.sleep(1)
         clear_screen()  # se utiliza la función de la vista
 

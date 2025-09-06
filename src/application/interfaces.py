@@ -6,24 +6,38 @@ Este script define la interfaz de la clase DatabaseRepository.
 from abc import ABC, abstractmethod
 from typing import Any, List, Dict
 
+from src.domain.modbus_register import ModbusRegister
+from src.domain.reading import Reading
+
+
 class IDatabaseRepository(ABC):
     """Interfaz para la clase DatabaseRepository."""
+    @abstractmethod
+    def actualizar_registro(self, register: ModbusRegister) -> None:
+        """Ejecuta una consulta de actualización de un registro de Modbus."""
+
+    @abstractmethod
+    def insert_reading(self, reading: Reading) -> None:
+        """Inserta una lectura de tipo Reading"""
+
+    @abstractmethod
+    def commit(self):
+        """Persiste los cambios"""
+
+
 class IModbusConnectionManager(ABC):
     """Puerto para la gestión de conexiones Modbus (descubrimiento, apertura, cierre)."""
     @abstractmethod
     def detectar_dispositivos(self) -> list:
         """Detecta dispositivos Modbus disponibles en el entorno."""
-        pass
 
     @abstractmethod
     def abrir_conexion(self, direccion: str) -> Any:
         """Abre una conexión Modbus con la dirección especificada."""
-        pass
 
     @abstractmethod
     def cerrar_conexion(self, conexion: Any) -> None:
         """Cierra la conexión Modbus proporcionada."""
-        pass
 
 
 class IModbusDevice(ABC):
@@ -31,12 +45,10 @@ class IModbusDevice(ABC):
     @abstractmethod
     def leer_registro(self, direccion: int) -> int:
         """Lee el valor de un registro Modbus."""
-        pass
 
     @abstractmethod
     def escribir_registro(self, direccion: int, valor: int) -> None:
         """Escribe un valor en un registro Modbus."""
-        pass
 
 
 class IModbusProcessor(ABC):
@@ -44,4 +56,7 @@ class IModbusProcessor(ABC):
     @abstractmethod
     def procesar_datos(self, datos: dict) -> dict:
         """Procesa los datos leídos de un dispositivo Modbus y retorna el resultado."""
-        pass
+
+
+class IDataCache(ABC):
+    """"""
