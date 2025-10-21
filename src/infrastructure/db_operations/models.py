@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy.orm import DeclarativeBase, declarative_base, Mapped, mapped_column
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column
 from sqlalchemy import UniqueConstraint
 
 from src import settings
@@ -15,7 +15,7 @@ class Reading(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     timestamp: Mapped[Optional[float]]
     label: Mapped[Optional[str]]
-    reading: Mapped[Optional[str]]
+    reading: Mapped[Optional[float]]
     units: Mapped[Optional[str]]
 
     __table_args__ = (UniqueConstraint('timestamp', 'label', name="_timestamp_label_uc"),)

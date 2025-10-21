@@ -53,7 +53,7 @@ class AppController:
         self.running = False
 
     @handle_errors()
-    @log_execution()
+    # @log_execution()
     def execute_main_operations(self):
         "Se encarga de ejecutar las operaciones principales del programa."
         self.logger.debug(

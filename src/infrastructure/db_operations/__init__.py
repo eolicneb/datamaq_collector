@@ -2,27 +2,22 @@
 Path: src/db_operations.py
 Este módulo se encarga de realizar operaciones de lectura y escritura en la base de datos.
 """
+from collections.abc import Iterable
+from dataclasses import asdict, dataclass
 
-import os
-from dataclasses import asdict
-
-from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+from typing_extensions import TypeVar
 
 from logger import logger
 from src import settings
 from src.application.interfaces import IDatabaseRepository
 from src.domain.modbus_register import ModbusRegister
 from src.domain.reading import Reading
-# from src.utils.logging.dependency_injection import get_logger
 
 from . import models
 
-
-# Cargamos las variables de entorno desde el archivo .env
-load_dotenv()
-# logger = get_logger()
+_T = TypeVar('reading_model', default=Reading)
 
 
 class SQLAlchemyDatabaseRepository(IDatabaseRepository):
@@ -168,6 +163,31 @@ class SQLAlchemyDatabaseRepository(IDatabaseRepository):
                 f"Error insertando reading: {reading}. Error: {e}"
             )
             raise DatabaseUpdateError(f"Error al actualizar la base de datos: {e}") from e
+
+    def get_reading(self, label: str, id: int = None, limit: int = None, offset: int = None, since: float = None):
+        try:
+            with self.session.begin():
+                _filters = [models.Reading.label == label]
+                if id:
+                    _filters.append(models.Reading.id == id)
+                if since:
+                    _filters.append(models.Reading.timestamp >= since)
+                readings = self.session.query(models.Reading).filter(*_filters).order_by(models.Reading.id.desc())
+                if limit or offset:
+                    offset = offset or 0
+                    _end = limit and (limit + offset)
+                    _slice = slice(offset, _end)
+                    yield from self._to_reading(readings[_slice])
+                else:
+                    yield from self._to_reading(readings.all())
+        except Exception as e:
+            logger.error(f"Error leyendo readings for label '{label}': id={id}, limit={limit}, offset={offset}, since={since}\n{e}")
+            return None
+
+    def _to_reading(self, db_readings: Iterable[type[models.Reading]]) -> Iterable[Reading]:
+        fields = Reading.__match_args__
+        for db_reading in db_readings:
+            yield Reading(**{f: getattr(db_reading, f) for f in fields})
 
 
 class DatabaseUpdateError(Exception):

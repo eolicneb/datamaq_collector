@@ -33,9 +33,9 @@ def log_execution(logger=None):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             log = get_logger(logger, args)
-            log.debug(f"Entrando a {func.__name__}")
+            # log.debug(f"Entrando a {func.__name__}")
             result = func(*args, **kwargs)
-            log.debug(f"Saliendo de {func.__name__}")
+            # log.debug(f"Saliendo de {func.__name__}")
             return result
         return wrapper
     return decorator

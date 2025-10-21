@@ -65,7 +65,7 @@ class ScheduledController:
         self._scheduled[schedule] = process_callable
 
     @a_handle_errors()
-    @a_log_execution()
+    # @a_log_execution()
     async def process(self, now):
         tasks = []
         for schedule, method in self._scheduled.items():
