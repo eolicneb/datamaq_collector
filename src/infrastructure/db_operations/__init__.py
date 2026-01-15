@@ -3,13 +3,13 @@ Path: src/db_operations.py
 Este módulo se encarga de realizar operaciones de lectura y escritura en la base de datos.
 """
 from collections.abc import Iterable
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from typing_extensions import TypeVar
 
-from logger import logger
+from src.logger import logger
 from src import settings
 from src.application.interfaces import IDatabaseRepository
 from src.domain.modbus_register import ModbusRegister

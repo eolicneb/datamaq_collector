@@ -1,3 +1,4 @@
+from src import settings
 from src.data_persist_controller import CachedDataTransferController, DataPersistSetup
 from src.rest_client import *
 
@@ -24,13 +25,13 @@ class RestButtler(RestObject):
 def create_rest_client(cache: ReadingCache):
     edge_setup = RestObjectSetup(
         name="edge",
-        request=RestRequestSetup(uri="http://localhost:5001/edge"),
+        request=RestRequestSetup(uri=settings.EDGE_URL),
         object_class=RestEdge,
         period=0.5,
     )
     buttler_setup = RestObjectSetup(
         name="buttler",
-        request=RestRequestSetup(uri="http://localhost:5000/reel"),
+        request=RestRequestSetup(uri=settings.REEL_URL),
         object_class=RestButtler,
         period=5,
     )
@@ -49,7 +50,7 @@ def set_rest_client_transfer(transfer: CachedDataTransferController):
 if __name__ == "__main__":
     from src.infrastructure.data_cache import MemoryCache
     import asyncio
-    from logger import logger
+    from src.logger import logger
 
     logger.setLevel("DEBUG")
 

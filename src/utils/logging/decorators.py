@@ -3,7 +3,7 @@ Decoradores reutilizables para manejo de errores y logging.
 """
 import functools
 import inspect
-from logger import logger as app_logger
+from src.logger import logger as app_logger
 
 
 def get_logger(logger, args):

@@ -8,7 +8,7 @@ logger = logging.getLogger("datamaq")
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
-file_handler = logging.FileHandler('salame.log')
+file_handler = logging.FileHandler('../salame.log')
 file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(message)s'))
 logger.addHandler(file_handler)

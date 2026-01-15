@@ -2,10 +2,10 @@ from datetime import datetime, UTC
 from functools import partial
 
 import aiohttp
-from typing import TypeVar, ClassVar, Callable
+from typing import ClassVar, Callable
 from dataclasses import dataclass, field
 
-from logger import logger
+from src.logger import logger
 from src.domain.reading import ReadingCache, Reading
 from src.utils.logging.decorators import a_handle_errors
 from src.utils.scheduler import ScheduledController

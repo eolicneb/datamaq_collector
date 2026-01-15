@@ -3,15 +3,14 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from traceback import format_exc
 
-from logger import logger, AsyncLoggerWrapper, a_logger
+from src.logger import logger, a_logger
 from src.app.rest_data import create_rest_client, set_rest_client_transfer
 from src.async_app_controller import AsyncAppController
-from src.data_persist_controller import DataPersistSetup, AggregationDataProcessMethods, CachedDataTransferController
+from src.data_persist_controller import DataPersistSetup, CachedDataTransferController
 from src.infrastructure.data_cache import MemoryCache
 from src.infrastructure.db_operations import SQLAlchemyDatabaseRepository
 from src.modbus_processor import ModbusScanner, ModbusDevice, ModbusConnectionManager, ModbusReadingSetup, \
     ModbusReadAddress
-from src.utils.running import unblocker
 
 
 class MainApplication:

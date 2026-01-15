@@ -1,14 +1,8 @@
 import asyncio
 import logging
-import os
-import signal
-import subprocess
-import time
 from concurrent.futures import ThreadPoolExecutor
 
-import pytest
-
-from logger import a_logger, logger
+from src.logger import a_logger
 from src.async_app_controller import AsyncAppController
 from src.async_main import MainApplication
 from src.data_persist_controller import DataPersistSetup, CachedDataTransferController

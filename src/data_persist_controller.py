@@ -5,7 +5,7 @@ from typing import Union, Collection, Optional, Callable, Iterable
 
 from sqlalchemy.exc import IntegrityError
 
-from logger import a_logger
+from src.logger import a_logger
 from src.application.interfaces import IDatabaseRepository
 from src.domain.reading import Reading
 from src.infrastructure.data_cache import MemoryCache
