@@ -1,11 +1,11 @@
 # ASYNC_MAIN.md
 
-Documentación de las funcionalidades implementadas en `src/async_main.py`.
+Documentación de las funcionalidades implementadas en `async_run.py`.
 
 ## Ejecución
 
 ```bash
-python src/async_main.py
+python async_run.py
 ```
 
 ## Componentes Inicializados
